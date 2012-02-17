@@ -1,0 +1,43 @@
+util = require('util')
+fs = require('fs')
+exec = require('child_process').exec
+spawn = require('child_process').spawn
+
+src = "./coffee"
+dest = "./js"
+
+callback = (child) ->
+	child.stdout.on 'data', (data) ->
+		util.print data
+		exec "notify-send \"Cackefile\" \"#{data}\""
+	child.stderr.on 'data', (data) ->
+		util.print data
+		exec "notify-send \"Cakefile(fail)\" \"#{data}\""
+
+coffeeWatch = ->
+	# spawn
+	[spawn('coffee', ['-cbwl', '-o', dest, src])].forEach callback
+
+coffeeCompile = ->
+	# spawn
+	[spawn('coffee', ['-cbl', '-o', dest, src])].forEach callback
+
+yuiCompress = ->
+	onError = (err, stdout, stderr) ->
+		if err then throw err
+		if stdout then console.log(stdout)
+		if stderr then console.log(stderr)
+	compress = (js) ->
+		if !js.match /\.min\.js$/
+			min = js.replace(/\.js$/, '.min.js')
+			exec "yuicompressor #{dest}/#{js} > #{dest}/#{min}", onError
+	fs.readdir dest, (err, files) -> files.forEach (js) -> compress js
+
+task 'watch', 'watches and compiles coffee file', ->
+	console.log "Spawning coffee watcher..."
+	coffeeWatch()
+
+task 'compile', 'compiles coffee file', ->
+	console.log "Spawning coffee compiler..."
+	coffeeCompile()
+	yuiCompress()
