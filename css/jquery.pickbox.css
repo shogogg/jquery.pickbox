@@ -14,8 +14,13 @@ form.ui-pickbox {
 }
 
 form.ui-pickbox input.ui-pickbox-input {
+	margin: 0 2px;
 	border: 1px solid #999;
-	width: 80px;
+	min-width: 125px;
+}
+
+form.ui-pickbox input.ui-pickbox-input-focused {
+	outline: none;
 }
 
 form.ui-pickbox div.ui-pickbox-list-wrapper {

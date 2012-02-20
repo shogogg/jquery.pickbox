@@ -27,6 +27,7 @@
     DATA = 'ui-pickbox-index'
     CLASS_BTN_HOVERED = 'ui-pickbox-btn-hovered'
     CLASS_ITEM_HOVERED = 'ui-pickbox-list-item-hovered'
+    CLASS_INPUT_FOCUSED = 'ui-pickbox-input-focused'
 
     # ウィジェット本体
     widget = {
@@ -60,10 +61,18 @@
                 .mouseout(=> @btn.removeClass(CLASS_BTN_HOVERED))
                 .text(options.filter(":selected").text())
                 .insertAfter(elem)
-            @input = $('<input type="text" class="xui-pickbox-input">')
+            @input = $('<input type="text" class="ui-pickbox-input">')
                 .keydown((event) => @_onKeyInput(event))
-                .focus(=> @_startWatcher())
-                .blur(=> @_close())
+                .focus(=>
+                    @input.addClass(CLASS_INPUT_FOCUSED)
+                    @_startWatcher()
+                    return
+                )
+                .blur(=>
+                    @input.removeClass(CLASS_INPUT_FOCUSED)
+                    @_close()
+                    return
+                )
             @list = $('<ul class="ui-pickbox-list">')
                 .html(items.get().join(''))
             @items = @list
@@ -89,12 +98,14 @@
         # 選択UIを開く
         open: ->
             offset = @btn.offset()
-            @box.css {
+            @box.css({
                 top: offset.top + @btn.outerHeight() + 1
                 left: offset.left
-            }
+            })
             @box.show 0, => @_hoverByIndex(@element[0].selectedIndex)
-            @input.focus()
+            boxWidth = @box.innerWidth()
+            inputMargin = @input.outerWidth() - @input.innerWidth()
+            @input.focus().width(boxWidth - inputMargin)
             return
 
         # 選択UIを閉じる

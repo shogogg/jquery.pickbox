@@ -16,7 +16,7 @@
  * limitations under the License.
 */
 (function(global, $, EMPTY) {
-  var CLASS_BTN_HOVERED, CLASS_ITEM_HOVERED, CLOSE_DELAY, DATA, FILTER_DELAY, KEY_DOWN, KEY_ESCAPE, KEY_RETURN, KEY_UP, WATCH_INTERVAL, widget;
+  var CLASS_BTN_HOVERED, CLASS_INPUT_FOCUSED, CLASS_ITEM_HOVERED, CLOSE_DELAY, DATA, FILTER_DELAY, KEY_DOWN, KEY_ESCAPE, KEY_RETURN, KEY_UP, WATCH_INTERVAL, widget;
   KEY_RETURN = 13;
   KEY_ESCAPE = 27;
   KEY_UP = 38;
@@ -27,6 +27,7 @@
   DATA = 'ui-pickbox-index';
   CLASS_BTN_HOVERED = 'ui-pickbox-btn-hovered';
   CLASS_ITEM_HOVERED = 'ui-pickbox-list-item-hovered';
+  CLASS_INPUT_FOCUSED = 'ui-pickbox-input-focused';
   widget = {
     box: null,
     btn: null,
@@ -57,12 +58,14 @@
       }).mouseout(function() {
         return _this.btn.removeClass(CLASS_BTN_HOVERED);
       }).text(options.filter(":selected").text()).insertAfter(elem);
-      this.input = $('<input type="text" class="xui-pickbox-input">').keydown(function(event) {
+      this.input = $('<input type="text" class="ui-pickbox-input">').keydown(function(event) {
         return _this._onKeyInput(event);
       }).focus(function() {
-        return _this._startWatcher();
+        _this.input.addClass(CLASS_INPUT_FOCUSED);
+        _this._startWatcher();
       }).blur(function() {
-        return _this._close();
+        _this.input.removeClass(CLASS_INPUT_FOCUSED);
+        _this._close();
       });
       this.list = $('<ul class="ui-pickbox-list">').html(items.get().join(''));
       this.items = this.list.children().click(function(event) {
@@ -85,7 +88,7 @@
       }
     },
     open: function() {
-      var offset,
+      var boxWidth, inputMargin, offset,
         _this = this;
       offset = this.btn.offset();
       this.box.css({
@@ -95,7 +98,9 @@
       this.box.show(0, function() {
         return _this._hoverByIndex(_this.element[0].selectedIndex);
       });
-      this.input.focus();
+      boxWidth = this.box.innerWidth();
+      inputMargin = this.input.outerWidth() - this.input.innerWidth();
+      this.input.focus().width(boxWidth - inputMargin);
     },
     close: function() {
       var _this = this;
