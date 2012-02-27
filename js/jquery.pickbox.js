@@ -43,7 +43,7 @@
     _init: function() {
       var elem, items, options,
         _this = this;
-      elem = this.element.hide();
+      elem = this.element.hide().addClass('ui-pickbox-element');
       options = elem.children();
       items = options.map(function() {
         var text;
@@ -123,6 +123,7 @@
       elem = $(elem);
       if (elem.length !== 0) {
         this.element.get(0).selectedIndex = $.data(elem[0], DATA);
+        this.element.change();
         this.btn.text(elem.text());
         this.close();
       }

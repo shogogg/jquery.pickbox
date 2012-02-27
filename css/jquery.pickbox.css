@@ -1,3 +1,7 @@
+select.ui-pickbox-element {
+	display: none
+}
+
 button.ui-pickbox-btn {
 	min-width: 131px;
 	padding: 0 27px 0 7px;

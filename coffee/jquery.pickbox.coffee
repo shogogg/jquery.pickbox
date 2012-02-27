@@ -48,7 +48,7 @@
 
         # 初期化
         _init: ->
-            elem = @element.hide()
+            elem = @element.hide().addClass('ui-pickbox-element')
             options = elem.children()
             items = options.map ->
                 text = @innerHTML
@@ -129,7 +129,8 @@
             elem = $(elem)
             if elem.length != 0
                 @element.get(0).selectedIndex = $.data(elem[0], DATA)
-                @btn.text elem.text()
+                @element.change()
+                @btn.text(elem.text())
                 @close()
             return
 
