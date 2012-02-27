@@ -1,43 +1,39 @@
-util = require('util')
 fs = require('fs')
-exec = require('child_process').exec
-spawn = require('child_process').spawn
+puts = require('util').puts
+child_process = require('child_process')
 
-src = "./coffee"
-dest = "./js"
+SRC = "./coffee"
+DEST = "./js"
 
-callback = (child) ->
-    child.stdout.on 'data', (data) ->
-        util.print data
-        exec "notify-send \"Cackefile\" \"#{data}\""
-    child.stderr.on 'data', (data) ->
-        util.print data
-        exec "notify-send \"Cakefile(fail)\" \"#{data}\""
+spawn = (cmd, args) ->
+    child = child_process.spawn cmd, args
+    child.stdout.on 'data', (data) -> puts data
+    child.stderr.on 'data', (data) -> puts data
 
 coffeeWatch = ->
-    # spawn
-    [spawn('coffee', ['-cbwl', '-o', dest, src])].forEach callback
+    spawn 'coffee', ['-cbwl', '-o', DEST, SRC]
 
 coffeeCompile = ->
-    # spawn
-    [spawn('coffee', ['-cbl', '-o', dest, src])].forEach callback
+    spawn 'coffee', ['-cbl', '-o', DEST, SRC]
 
 yuiCompress = ->
     onError = (err, stdout, stderr) ->
         if err then throw err
-        if stdout then console.log(stdout)
-        if stderr then console.log(stderr)
-    compress = (js) ->
+        if stdout then puts stdout
+        if stderr then puts stderr
+    fs.readdir DEST, (err, files) -> files.forEach (js) ->
         if !js.match /\.min\.js$/
             min = js.replace(/\.js$/, '.min.js')
-            exec "yuicompressor #{dest}/#{js} > #{dest}/#{min}", onError
-    fs.readdir dest, (err, files) -> files.forEach (js) -> compress js
+            child_process.exec "yuicompressor #{DEST}/#{js} > #{DEST}/#{min}", onError
 
 task 'watch', 'watches and compiles coffee file', ->
-    console.log "Spawning coffee watcher..."
+    puts "Spawning coffee watcher..."
     coffeeWatch()
 
 task 'compile', 'compiles coffee file', ->
-    console.log "Spawning coffee compiler..."
+    puts "Spawning coffee compiler..."
     coffeeCompile()
-    yuiCompress()
+
+task 'compress', 'compress js files', ->
+	puts "Spawning yui-compressor..."
+	yuiCompress()
